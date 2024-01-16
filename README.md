@@ -9,6 +9,7 @@ Dumpread_FS.py -> Reads the dump file generated using LAMMPS MD simulations and 
 
 FFT_steady.py -> Reads the dump file and exports a CSV file that contains the amplitudes and the corresponding wavenumbers.
 
+Input files folder contaıns the input files required for running the simulations.
 
 References:
 
