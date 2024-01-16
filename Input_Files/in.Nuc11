@@ -1,0 +1,72 @@
+units	lj
+
+dimension 3
+boundary p p p
+
+atom_style angle
+pair_style lj96/cut 1.12246
+pair_modify shift yes
+bond_style hybrid harmonic fene
+angle_style harmonic
+
+special_bonds lj 0.0 1.0 1.0 coul 0.0 1.0 1.0
+
+read_data data.equilibrium
+
+bond_coeff 1 fene 5.0	1.5	1.0	1.0
+bond_coeff 2 fene 30.0	1.5	1.0	1.0
+bond_coeff 3 harmonic 10.0	1.5
+
+pair_coeff	* * 1.0 1.0 
+pair_coeff	1 2 0.75 1.0 2.5
+pair_coeff      1 4 0.75 1.0 2.5
+pair_coeff      1 5 2.20 1.0 2.5
+pair_coeff      1 6 2.20 1.0 2.5
+pair_coeff      1 7 2.20 1.0 2.5
+pair_coeff      1 8 2.20 1.0 2.5
+pair_coeff	3 3 0.05 1.0 2.5
+pair_coeff	3 7 0.05 1.0 2.5
+pair_coeff	2 3 0.25 1.0 2.5
+pair_coeff	2 7 0.25 1.0 2.5
+pair_coeff	3 4 0.50 1.0 2.5
+pair_coeff	4 7 0.50 1.0 2.5
+pair_coeff	3 6 0.50 1.0 2.5
+pair_coeff	6 7 0.50 1.0 2.5
+pair_coeff      2 2 0.65 1.0 2.5
+pair_coeff      2 8 0.65 1.0 2.5
+pair_coeff      2 4 0.85 1.0 2.5
+pair_coeff      2 6 0.85 1.0 2.5
+pair_coeff      4 4 1.10 1.0 2.5
+pair_coeff      4 6 1.10  1.0 2.5
+
+angle_coeff 1 1.0 180.0
+
+neighbor 0.4 bin
+neigh_modify delay 10
+
+group	      dna  type 2:8
+group         D  type 1
+group         all  type 1:8
+
+thermo_style	multi
+thermo          500
+
+
+compute       1 D chunk/atom molecule
+compute       2	D gyration/chunk 1 tensor
+#compute       3	D gyration/shape/chunk 2
+
+fix	      1 all nve
+fix           2 all langevin 1.0 1.0 1000.0 7213981
+fix 	      3 D recenter INIT INIT INIT
+fix	      4 all ave/time 1000 1 1000 c_2[*] file Con_Rg.txt mode vector
+#fix	      5 all ave/time 1000 1 1000 c_3[*] file Con_Rg-1.txt mode vector
+
+velocity dna create 1 428420409 rot yes dist gaussian
+
+dump          1 all atom 40000 dump.final
+dump_modify 1 scale no
+
+run         5000000
+
+write_data    data.ex1
